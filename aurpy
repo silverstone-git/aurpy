@@ -1,0 +1,31 @@
+#!/usr/bin/env python3
+from os import system,listdir,chdir,path,curdir
+from sys import argv
+inp = argv[1]
+comm = "git clone 'https://aur.archlinux.org/{}.git' ".format(inp)
+system(comm)
+
+yflag = False
+if inp in listdir():
+    yflag = True
+    print("cd-ing into the directory...")
+else:
+    print("There was an error in downloading the files!")
+    exit()
+
+chdir(path.join(path.dirname(path.abspath(__file__)), inp))
+
+# system returns 2048 when package is missing for some weird reason
+succ = 2048
+while succ == 2048:
+    succ = system("makepkg")
+    print("succ is: ", succ)
+    if succ == 2048:
+        ext_pkg = input("Enter the extra packages to install [space separated] : ")
+        print("may have to enter password..")
+        system("sudo pacman -S {}".format(ext_pkg))
+
+print("\nInstalling the downloaded package... [may have to enter password]")
+system("sudo pacman -U {}*.tar.zst".format(inp))
+
+x = input("Successful end of program")
